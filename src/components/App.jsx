@@ -1,32 +1,40 @@
-import React, { Component } from "react";
+import { useState } from "react";
 import { FeedbackOptions } from "./FeedbackOptions/FeedbackOptions";
 import { Section } from "./Section/Section";
 import { Statistics } from "./Statistics/Statistics";
 import { Container } from './App.styled';
 
 
-export class App extends Component {
-	state = {
-		good: 0,
-		neutral: 0,
-		bad: 0,
+export default function App() {
+	const [good, setGood] = useState(0);
+	const [neutral, setNeutral] = useState(0);
+	const [bad, setBad] = useState(0);
+
+	const handleFeedback = e => {
+		switch (e) {
+			case 'good':
+				setGood(prevState => prevState + 1);
+				break;
+			case 'neutral':
+				setNeutral(prevState => prevState + 1);
+				break;
+			case 'bad':
+				setBad(prevState => prevState + 1);
+				break;
+			default: return;
+		}
 	};
 
-	handleFeedback = e => {
-		this.setState({ [e]: this.state[e] + 1 });
-	};
+	const countTotalFeedback = () => good + neutral + bad;
 
-	countTotalFeedback = ({ good, neutral, bad }) => good + neutral + bad;
+	const countPositiveFeedbackPercentage = () => Math.round((good * 100) / countTotalFeedback());
 
-	countPositiveFeedbackPercentage = ({ good, neutral, bad }) => Math.round((good * 100) / this.countTotalFeedback(this.state));
-	render() {
-		const { good, neutral, bad } = this.state;
 		return (
 			<Container>
 				<Section title="Please leave feedback">
 					<FeedbackOptions
-						options={Object.keys(this.state)}
-						onHandle={this.handleFeedback}
+						options={Object.keys({good, neutral, bad})}
+						onHandle={handleFeedback}
 					/>
 				</Section>
 				<Section title="Statistics">
@@ -34,11 +42,10 @@ export class App extends Component {
 						good={good}
 						neutral={neutral}
 						bad={bad}
-						total={this.countTotalFeedback(this.state)}
-						positivePercentage={this.countPositiveFeedbackPercentage(this.state)}>
+						total={countTotalFeedback()}
+						positivePercentage={countPositiveFeedbackPercentage()}>
 					</Statistics>
 				</Section>
 			</Container>
 		);
 	}
-};
